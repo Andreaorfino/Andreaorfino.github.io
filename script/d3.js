@@ -15,22 +15,38 @@ function getRandomColor() {
     return color + "3";
 }
 
-// ----------------------------
-
-const fileNames = ['areas', 'ingredients', 'meals'];
-const allDataLoadPromises = [];
-
-for (let i = 0; i < fileNames.length; i++) {
-    const fileName = '/data/' + fileNames[i] + '.json';
-    allDataLoadPromises.push(new Promise((resolve) => {
-        d3.json(fileName).then(data => {
-            resolve(data);
-        });
-    }));    
+//genera un array di colori
+function getArrayColori(n){
+    let arrayColori = [];
+    for (let i = 0; i < n; i++){ 
+        arrayColori.push(getRandomColor());
+    }
+    return arrayColori;
 }
 
-Promise.all(allDataLoadPromises).then( datasets => {
-    datasets.forEach( data => {
-        console.log(data);
-    })
-})
+// ----------------------------
+
+function ciao() {
+    var x = document.getElementById("formIngredient").elements[0].value;
+    console.log(x);
+}
+
+// ----------------------------
+
+async function loadData() {
+    const fileNames = ['areas', 'ingredients', 'meals'];
+    const allDataLoadPromises = [];
+
+    for (let i = 0; i < fileNames.length; i++) {
+        const fileName = '/data/' + fileNames[i] + '.json';
+        allDataLoadPromises.push(new Promise((resolve) => {
+            d3.json(fileName).then(data => {
+                resolve(data);
+            });
+        }));
+    }
+
+    datasets_ = await Promise.all(allDataLoadPromises);
+    return datasets_
+}
+

@@ -1,4 +1,4 @@
-# InfoVisP1
+# InfoVisP2
 Progetto numero due del corso di Visualizzazione delle informazioni.
 
 ## Specifiche
@@ -10,7 +10,6 @@ Progetto numero due del corso di Visualizzazione delle informazioni.
 ├───css
 │       style.css
 ├───data
-│       position.json
 └───script
         d3.js
 ```

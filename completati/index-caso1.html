@@ -11,9 +11,7 @@
     stroke-width: 1.5px;
   }
 </style>
-<svg width="2000" height="1000">
-  <path></path>
-</svg>
+<svg width="2000" height="1000"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
   //initilize svg or grab svg
@@ -407,7 +405,6 @@
   });
   // collego tutti i nodi invisibili tra di loro
 
-
   for (i = 0; i < lista_nodi_invisibili.length - 1; i++) {
     for (j = 1; j < lista_nodi_invisibili.length; j++) {
       graph.links.push({ "source": lista_nodi_invisibili[i], "target": lista_nodi_invisibili[j], "value": 0 })
@@ -423,7 +420,7 @@
         .id(function (d) {
           return d.name;
         })
-        .distance(function (d) {
+         .distance(function (d) {
           if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return 600; }
           else {
             if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
@@ -445,7 +442,7 @@
         })
         .links(graph.links)
     )
-    .force("center", d3.forceCenter(width / 2, height / 2))
+     .force("center", d3.forceCenter(width / 2, height / 2)) 
     .force('collision', d3.forceCollide().radius(function (d) { if (d.name.includes("invisibile")) return 0; else return 20; }))
     .on("tick", ticked);
 
@@ -477,10 +474,6 @@
         .on("end", dragended)
     );
 
-  var groups = d3.nest().key(function (d) { return d.group; }).entries(graph.nodes);
-
-
-
   function ticked() {
     node.attr("cx", function (d) { return d.x = Math.max(50, Math.min(width - 50, d.x)); })
       .attr("cy", function (d) { return d.y = Math.max(50, Math.min(height - 50, d.y)); });
@@ -489,33 +482,7 @@
       .attr("y1", function (d) { return d.source.y; })
       .attr("x2", function (d) { return d.target.x; })
       .attr("y2", function (d) { return d.target.y; });
-
-    const groupsCoordinate = [];
-    const groupsNodes = [];
-    groups.map(function (d) {
-      const groupCoordinate = [];
-      const groupNodes = [];
-      d.values.map(function (i) {
-        if ( ! i.name.includes("invisibile")) {
-          groupNodes.push(i);
-          groupCoordinate.push([i.x, i.y]);
-        }
-      });
-      groupsNodes.push(groupNodes);
-      groupsCoordinate.push(groupCoordinate);
-    });
-
-    svg.selectAll("path")
-      .attr("d", 'M' + groupsCoordinate.map(i => { return [i[0], i[1]] }).join('L') + 'Z')
-      .enter().insert("path", "circle")
-      .style("fill", 'red')
-      .style("stroke", 'red')
-      .style("stroke-width", 40)
-      .style("stroke-linejoin", "round")
-      .style("opacity", .4);
   }
-
-
 
   function dragstarted(d) {
     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
