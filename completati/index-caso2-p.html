@@ -409,7 +409,7 @@
 
   unique_cluster_name.forEach(function (d) {
     const gruppo = getIndexGroup(groups,d)
-    const nNodiInvisibili = decisiNumeroNodiInvisibili(gruppo.values.length)
+    const nNodiInvisibili = decisiNumeroNodiInvisibili(gruppo.values.length)*2
     d3.range(nNodiInvisibili).forEach(i => {
       const nameInvisibleNode = "invisibile" + d + i;
       graph.nodes.push({ "name": nameInvisibleNode, "group": d });

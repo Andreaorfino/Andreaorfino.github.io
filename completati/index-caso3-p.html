@@ -6,7 +6,7 @@
     stroke-opacity: 0.6;
   }
 
-/*   .nodes circle {
+  /*   .nodes circle {
     stroke: #fff;
     stroke-width: 1.5px;
   } */
@@ -464,6 +464,12 @@
     }))
     .on("tick", ticked);
 
+  function raggioGroup(group) {
+    for (let i = 0; i < groups.length; i++) {
+      if (groups[i].key == group) { return (groups[i].values.length * 5)+50; }
+    }
+  }
+
   var link = svg
     .append("g")
     .attr("class", "links")
@@ -480,17 +486,23 @@
     .attr("class", "nodes")
     .selectAll("circle")
     .data(graph.nodes)
-    .enter() 
+    .enter()
     .append("circle")
-    .attr("r", function (d) { if (d.name.includes("invisibile")) return 100; else return 8 })
+    .attr("r", function (d) {
+      if (d.name.includes("invisibile")) {
+        return raggioGroup(d.group);
+      } else{
+        return 8;
+      }
+    })
     .attr("fill", function (d) { if (d.name.includes("invisibile")) return "rgba(198, 45, 205, 0.1)"; else return colori_array[d.group] })
-/*     .call(
+    .call(
       d3
         .drag()
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended)
-    ); */
+    );
 
 
 
@@ -512,7 +524,7 @@
   }
   //-------------
 
-  const raggio = 100;
+
 
   function ticked() {
 
@@ -524,20 +536,15 @@
 
     node.attr("cx", function (d) {
       const coordinateCentro = getCentroGruppo(d.group, invisibili);
-
-      if (distanzaCentro(d.x, d.y, coordinateCentro.x, coordinateCentro.y) > raggio) {
-        
-        
+      if (distanzaCentro(d.x, d.y, coordinateCentro.x, coordinateCentro.y) > raggioGroup(d.group)) {
         return d.x = coordinateCentro.x;
       } else {
         return d.x;
       }
-
     })
       .attr("cy", function (d) {
         const coordinateCentro = getCentroGruppo(d.group, invisibili);
-
-        if (distanzaCentro(d.x, d.y, coordinateCentro.x, coordinateCentro.y) > raggio) {
+        if (distanzaCentro(d.x, d.y, coordinateCentro.x, coordinateCentro.y) > raggioGroup(d.group)) {
           return d.y = coordinateCentro.y;
         } else {
           return d.y;
