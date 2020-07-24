@@ -609,37 +609,7 @@
       start2();
     }, 3000);
 
-    /*     setTimeout(function () {
-          // remove b
-          nodes.push(...[a]);
-          start();
-        }, 1000);
-    
-        // 1. add the links
-        setTimeout(function () {
-          nodes.push(...allNodes);
-          links.push(...graph.links);
-          start();
-    
-        }, 3000); */
-    /*
-        // 2. Remove node B and associated links.
-        setTimeout(function () {
-          // remove b
-          nodes = [a, c];
-          // remove a-b
-          links = [links[1]];
-          start();
-        }, 2000);
-    
-    
-        // Add node B back.
-        setTimeout(function () {
-          b = createNode("b")
-          nodes.push(b);
-          links.push({ source: a, target: b }, { source: b, target: c });
-          start();
-        }, 3000); */
+  
 
     function createNode(nome, group) {
       return { "name": nome, "x": width / 2, "y": height / 2, group }
