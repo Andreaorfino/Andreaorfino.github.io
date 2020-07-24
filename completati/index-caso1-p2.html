@@ -1,5 +1,3 @@
-TODO mettere la collide ai pallocchi
-
 <!DOCTYPE html>
 <meta charset="utf-8" />
 <style>
@@ -8,14 +6,13 @@ TODO mettere la collide ai pallocchi
     stroke-opacity: 0.6;
   }
 
-  /*   .nodes circle {
+  .nodes circle {
     stroke: #fff;
     stroke-width: 1.5px;
-  } */
+  }
 </style>
-<svg width="2000" height="1000">
-</svg>
-<script src="https://d3js.org/d3.v5.min.js"></script>
+<svg width="2000" height="1000"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
   //initilize svg or grab svg
   var svg = d3.select("svg");
@@ -101,7 +98,33 @@ TODO mettere la collide ai pallocchi
       { "name": "Child1", "group": 10 },
       { "name": "Child2", "group": 10 },
       { "name": "Brujon", "group": 4 },
-      { "name": "Mme.Hucheloup", "group": 8 }
+      { "name": "Mme.Hucheloup", "group": 8 },
+    { "name": "Tholomyes1", "group": 11 },
+      { "name": "Listolier1", "group":11 },
+      { "name": "Fameuil1", "group": 11 },
+      { "name": "Blacheville1", "group": 12 },
+      { "name": "Favourite1", "group": 12 },
+      { "name": "Dahlia1", "group": 12 },
+      { "name": "Zephine1", "group": 12 },
+      { "name": "Fantine1", "group": 13 },
+      { "name": "Tholomyes2", "group": 13 },
+      { "name": "Listolier2", "group": 13 },
+      { "name": "Fameuil2", "group": 13 },
+      { "name": "Blacheville2", "group": 13 },
+      { "name": "Favourite2", "group": 14 },
+      { "name": "Dahlia2", "group": 15 },
+      { "name": "Zephine2", "group": 15 },
+      { "name": "Fantine2", "group": 15 },
+      { "name": "Dahlia3", "group": 16 },
+      { "name": "Zephine3", "group": 17 },
+      { "name": "Fantine3", "group": 17 },
+      { "name": "Dahlia4", "group": 17 },
+      { "name": "Zephine4", "group": 18 },
+      { "name": "Fantine4", "group": 18 },
+      { "name": "Dahlia5", "group": 19 },
+      { "name": "Zephine5", "group": 19 },
+      { "name": "Fantine5", "group": 19 },
+      
     ],
     "links": [
       { "source": "Napoleon", "target": "Myriel", "value": 1 },
@@ -360,7 +383,7 @@ TODO mettere la collide ai pallocchi
       { "source": "Mme.Hucheloup", "target": "Enjolras", "value": 1 }
     ]
   }
-    ;
+  ;
   // genera un Hex color code che inizia con #0 (in modo che i colori siano tutti freddi)
   function getRandomColor() {
     var letters = '0123456789ABCDEF';
@@ -380,13 +403,6 @@ TODO mettere la collide ai pallocchi
     return arrayColori;
   }
 
-  function decisiNumeroNodiInvisibili(n) {
-    if (n < 3) return 5;
-    else if (n < 5) return 6;
-    else if (n < 11) return 7;
-    else return 8;
-  }
-
 
   // creo i nodi invisibili e li collego a tutti i nodi del loro cluster
   var cluster_name = [];
@@ -395,35 +411,32 @@ TODO mettere la collide ai pallocchi
   })
   var unique_cluster_name = [...new Set(cluster_name)];
   var lista_nodi_invisibili = [];
-
-  function getIndexGroup(groups, d) {
-    for (let i = 0; i < groups.length; i++) {
-      if (groups[i].key == d) return groups[i];
-    }
-  }
-
-  var groups = d3.nest().key(function (d) { return d.group; }).entries(graph.nodes);
-  unique_cluster_name = groups.map(function (d) {
-    return parseInt(d.key)
-  });
-
-  const invisibleNode = [];
-
   unique_cluster_name.forEach(function (d) {
-    const nameInvisibleNode = "invisibile" + d;
-    invisibleNode.push(nameInvisibleNode)
-    graph.nodes.unshift({ "name": nameInvisibleNode, "group": d });
-  });
-  invisibleNode.forEach(function (j) {
-    invisibleNode.forEach(function (i) {
-      if (i != j) {
-        graph.links.push({ "source": i, "target": j, "value": 0 });
-      }
-    })
-  })
+    var lista_nodi_cluster = [];
 
+    graph.nodes.push({ "name": "invisibile" + d, "group": d });
+    lista_nodi_invisibili.push("invisibile" + d)
+    graph.nodes.forEach(function (s) {
+
+      if (s.group == d) {
+        lista_nodi_cluster.push(s.name)
+      }
+
+    });
+    lista_nodi_cluster.forEach(function (z) {
+      graph.links.push({ "source": "invisibile" + d, "target": z, "value": 1 })
+    });
+
+
+  });
   // collego tutti i nodi invisibili tra di loro
 
+  for (i = 0; i < lista_nodi_invisibili.length - 1; i++) {
+    for (j = 1; j < lista_nodi_invisibili.length; j++) {
+      graph.links.push({ "source": lista_nodi_invisibili[i], "target": lista_nodi_invisibili[j], "value": 0 })
+      graph.links.push({ "source": lista_nodi_invisibili[j], "target": lista_nodi_invisibili[i], "value": 0 })
+    }
+  };
 
   var simulation = d3
     .forceSimulation(graph.nodes)
@@ -433,15 +446,13 @@ TODO mettere la collide ai pallocchi
         .id(function (d) {
           return d.name;
         })
-        .distance(function (d) {
+         .distance(function (d) {
           if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return 600; }
           else {
             if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
-              return 100;
+              return -10;
             } else {
-              if (d.source.group == d.target.group) { return 0; } else {
-                return 0;
-              }
+              return 0;
             }
           }
         })
@@ -449,28 +460,17 @@ TODO mettere la collide ai pallocchi
           if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return 0.2; }
           else {
             if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
-              return 0.6;
+              return 0.3;
             } else {
-              if (d.source.group == d.target.group) { return 0.1 } else {
-                return 0;
-              }
+              return 0;
             }
           }
         })
         .links(graph.links)
     )
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .force('collision', d3.forceCollide().radius(function (d) {
-      if (d.name.includes("invisibile")) return 0;
-      else return 20;
-    }))
+     .force("center", d3.forceCenter(width / 2, height / 2)) 
+    .force('collision', d3.forceCollide().radius(function (d) { if (d.name.includes("invisibile")) return 0; else return 20; }))
     .on("tick", ticked);
-
-  function raggioGroup(group) {
-    for (let i = 0; i < groups.length; i++) {
-      if (groups[i].key == group) { return (groups[i].values.length * 5)+50; }
-    }
-  }
 
   var link = svg
     .append("g")
@@ -480,7 +480,7 @@ TODO mettere la collide ai pallocchi
     .enter()
     .append("line")
     .attr("stroke-width", function (d) {
-      if (d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) return 0; else return 3;
+      if (d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) return 4; else return 3;
     });
   var colori_array = getArrayColori(unique_cluster_name.length);
   var node = svg
@@ -490,14 +490,8 @@ TODO mettere la collide ai pallocchi
     .data(graph.nodes)
     .enter()
     .append("circle")
-    .attr("r", function (d) {
-      if (d.name.includes("invisibile")) {
-        return raggioGroup(d.group);
-      } else{
-        return 8;
-      }
-    })
-    .attr("fill", function (d) { if (d.name.includes("invisibile")) return "rgba(198, 45, 205, 0.1)"; else return colori_array[d.group] })
+    .attr("r", function (d) { if (d.name.includes("invisibile")) return 10; else return 8 })
+    .attr("fill", function (d) { if (d.name.includes("invisibile")) return "red"; else return colori_array[d.group] })
     .call(
       d3
         .drag()
@@ -506,67 +500,14 @@ TODO mettere la collide ai pallocchi
         .on("end", dragended)
     );
 
-
-
-  /*   var groupPath = function (d) {
-      return "M" +
-        d3.polygonHull(d.values.map(i => { return [i[0], i[1]] })).join('L')
-        + "Z";
-    }; */
-  //---------------
-  function distanzaCentro(x2, y2, x1, y1) {
-    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
-  }
-  function getCentroGruppo(groupId, invisibili) {
-    for (let i = 0; i < invisibili.length; i++) {
-      if (invisibili[i].group == groupId) {
-        return invisibili[i]
-      }
-    }
-  }
-  //-------------
-
-
-
   function ticked() {
-
-    const invisibili = [];
-    node.attr("cx", function (d) {
-      if (d.name.includes("invisibile"))
-        invisibili.push({ group: d.group, x: d.x, y: d.y });
-    });
-
-    node.attr("cx", function (d) {
-      const coordinateCentro = getCentroGruppo(d.group, invisibili);
-      if (distanzaCentro(d.x, d.y, coordinateCentro.x, coordinateCentro.y) > raggioGroup(d.group)) {
-        return d.x = coordinateCentro.x;
-      } else {
-        return d.x;
-      }
-    })
-      .attr("cy", function (d) {
-        const coordinateCentro = getCentroGruppo(d.group, invisibili);
-        if (distanzaCentro(d.x, d.y, coordinateCentro.x, coordinateCentro.y) > raggioGroup(d.group)) {
-          return d.y = coordinateCentro.y;
-        } else {
-          return d.y;
-        }
-      }
-      );
-
-    node.attr("cx", function (d) {
-
-      return d.x = Math.max(50, Math.min(width - 50, d.x));
-    })
+    node.attr("cx", function (d) { return d.x = Math.max(50, Math.min(width - 50, d.x)); })
       .attr("cy", function (d) { return d.y = Math.max(50, Math.min(height - 50, d.y)); });
 
     link.attr("x1", function (d) { return d.source.x; })
       .attr("y1", function (d) { return d.source.y; })
       .attr("x2", function (d) { return d.target.x; })
       .attr("y2", function (d) { return d.target.y; });
-
-
-
   }
 
   function dragstarted(d) {
