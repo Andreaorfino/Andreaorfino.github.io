@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .link {
+            stroke: #777;
+            stroke-width: 2px;
+        }
+
+        .links line {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+
+        .nodes circle {
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <div>Strength <input id="strengthElem" step="0.1" type="range" min="0" max="2" /></div>
+    <div>Distance <input id="distanceElem" step="1" type="range" min="0" max="50" /></div>
+
+    <svg style="width: 900; height: 700;"></svg>
+
+    <script>
+        var route = [[30, 30], [192, 172], [194, 170], [197, 167], [199, 164], [199, 161], [199, 157], [199, 154], [199, 150], [199, 147], [199, 143], [199, 140], [200, 137], [202, 134], [204, 132], [207, 129], [207, 126], [200, 200]];
+
+        let distance = 1;
+        let createNode = function (id, coords) {
+            return {
+                radius: 4,
+                x: coords[0],
+                y: coords[1],
+            };
+        };
+
+        let getNodes = (route) => {
+            let d = [];
+            let i = 0;
+            route.forEach(function (coord) {
+                if (i === 0 || i === route.length - 1) {
+                    d.push(createNode(i, coord));
+                    d[i].fx = coord[0];
+                    d[i].fy = coord[1];
+                }
+                else {
+                    d.push(createNode(i, coord));
+                }
+                ++i;
+            });
+            return d;
+        };
+
+        let getLinks = (nodes) => {
+            let next = 1;
+            let prev = 0;
+            let obj = [];
+            while (next < nodes.length) {
+                obj.push({ source: prev, target: next, value: 1 });
+                prev = next;
+                ++next;
+            }
+            return obj;
+        };
+
+        let force = function (route) {
+            let width = 900;
+            let height = 700;
+            let nodes = getNodes(route);
+            let links = getLinks(nodes);
+            console.log(nodes)
+            d3.select('#strengthElem')
+                .on('click', function () {
+                    linkForce.strength(this.value);   // Set the slider's value. This will re-initialize the force's strenghts
+                    simulation.alpha(0.5).restart();  // Re-heat the simulation
+                }, false);
+
+            d3.select('#distanceElem')
+                .on('click', function (evt) {
+                    linkForce.distance(this.value);  // Set the slider's value. This will re-initialize the force's strenghts
+                    simulation.alpha(0.5).restart();  // Re-heat the simulation
+                }, false);
+
+            let linkForce = d3.forceLink()
+                .id(function (d) { return d.index; })
+                .strength(2)
+                .distance(2);
+
+            let simulation = d3.forceSimulation().nodes(nodes)
+                .force("link", linkForce)
+                .force("charge", d3.forceManyBody());
+
+            let svg = d3.select('svg').append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            let link = svg.append("g")
+                .attr('class', 'link')
+                .selectAll('.link')
+                .data(links)
+                .enter().append('line')
+                .attr("stroke-width", 1);
+
+            let node = svg.append("g")
+                .attr("class", "nodes")
+                .selectAll("circle")
+                .data(nodes)
+                .enter().append("circle")
+                .attr("r", function (d) { return d.radius; })
+                .attr("fill", function (d) { return '#fabfab'; });
+
+            simulation.nodes(nodes).on("tick", ticked);
+            simulation.force("link").links(links);
+
+            function ticked() {
+                link
+                    .attr("x1", function (d) { return d.source.x; })
+                    .attr("y1", function (d) { return d.source.y; })
+                    .attr("x2", function (d) { return d.target.x; })
+                    .attr("y2", function (d) { return d.target.y; });
+                node
+                    .attr("cx", function (d) { return d.x; })
+                    .attr("cy", function (d) { return d.y; });
+            }
+        };
+
+        force(route);
+    </script>
+</body>
+
+</html>

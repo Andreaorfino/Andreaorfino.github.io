@@ -1,16 +1,18 @@
 <!DOCTYPE html>
+<head>
 <meta charset="utf-8" />
 <style>
   .links line {
     stroke: #999;
     stroke-opacity: 0.6;
   }
-
-  .nodes circle {
-    stroke: #fff;
-    stroke-width: 1.5px;
-  }
 </style>
+</head>
+<div>Collision <input id="collision" step="1" type="range" min="0" max="50" value="20" />
+  distanza nodi invisibili <input id="distance" step="1" type="range" min="0" max="1000" value="600" />
+  <button id="invisibili" style="width: 200px; ">mostra/nascondi invisibili</button>
+
+</div>
 <svg width="2000" height="1000"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
@@ -18,6 +20,9 @@
   var svg = d3.select("svg");
   var width = svg.attr("width");
   var height = svg.attr("height");
+
+  var colorInvisibili = 'red';
+
 
   //intialize data
   var graph = {
@@ -412,15 +417,12 @@
     }
   };
 
-  var simulation = d3
-    .forceSimulation(graph.nodes)
-    .force(
-      "link",
-      d3.forceLink()
+  let collisionNode = d3.forceCollide().radius(function (d) { if (d.name.includes("invisibile")) return 0; else return 20; })
+  let distanceForceLink = d3.forceLink()
         .id(function (d) {
           return d.name;
         })
-         .distance(function (d) {
+        .distance(function (d) {
           if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return 600; }
           else {
             if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
@@ -441,9 +443,15 @@
           }
         })
         .links(graph.links)
+
+  var simulation = d3
+    .forceSimulation(graph.nodes)
+    .force(
+      "link",
+      distanceForceLink
     )
-     .force("center", d3.forceCenter(width / 2, height / 2)) 
-    .force('collision', d3.forceCollide().radius(function (d) { if (d.name.includes("invisibile")) return 0; else return 20; }))
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force('collision', collisionNode)
     .on("tick", ticked);
 
   var link = svg
@@ -453,6 +461,13 @@
     .data(graph.links)
     .enter()
     .append("line")
+    .attr("class", function (d) {
+      if (d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) {
+        return 'invisibile'
+      } else {
+        return 'normale'
+      }
+    })
     .attr("stroke-width", function (d) {
       if (d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) return 4; else return 3;
     });
@@ -464,8 +479,15 @@
     .data(graph.nodes)
     .enter()
     .append("circle")
+    .attr("class", function (d) {
+      if (d.name.includes("invisibile")) {
+        return 'invisibile'
+      } else {
+        return 'normale'
+      }
+    })
     .attr("r", function (d) { if (d.name.includes("invisibile")) return 10; else return 8 })
-    .attr("fill", function (d) { if (d.name.includes("invisibile")) return "red"; else return colori_array[d.group] })
+    .attr("fill", function (d) { if (d.name.includes("invisibile")) return 'red'; else return colori_array[d.group] })
     .call(
       d3
         .drag()
@@ -473,6 +495,9 @@
         .on("drag", dragged)
         .on("end", dragended)
     );
+
+  node.exit().remove();
+
 
   function ticked() {
     node.attr("cx", function (d) { return d.x = Math.max(50, Math.min(width - 50, d.x)); })
@@ -500,4 +525,43 @@
     d.fx = null;
     d.fy = null;
   }
+
+  d3.select('#invisibili').on('click', function () {
+    var css = 'circle.invisibile { fill: none; }  line.invisibile {    stroke: none;  }',
+      head = document.head || document.getElementsByTagName('head')[0],
+      style = document.createElement('style');
+      console.log(head);
+      console.log(head.childNodes.length)
+
+    if (head.childNodes.length < 6) {
+      head.appendChild(style);
+      style.type = 'text/css';
+      style.appendChild(document.createTextNode(css));
+    } else {
+      head.removeChild(head.lastChild);
+    }
+
+    /*     setTimeout(function (){head.removeChild(head.lastChild);},1000); */
+  })
+
+  d3.select('#collision').on('click', function () {
+    collisionNode.radius(this.value)
+    simulation.alpha(0.5).restart();
+  })
+
+  d3.select('#distance').on('click', function () {
+    console.log(this.value)
+    const valore = this.value;
+    distanceForceLink.distance(function (d) {
+          if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return valore ; }
+          else {
+            if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
+              return -10;
+            } else {
+              return 0;
+            }
+          }
+        })
+    simulation.alpha(0.5).restart();
+  })
 </script>
