@@ -12,19 +12,22 @@
       stroke: #999;
       stroke-width: 1px;
     }
+
+
+
   </style>
 </head>
 <div id="comandi">
-  
+
 
 
 </div>
 
-  <form id="grafo">
-    <input type="radio" name="grafo" value="1" checked="checked">grafo 1
-    <input type="radio" name="grafo" value="2">grafo 2
-    <input type="radio" name="grafo" value="3">grafo 3
-  </form>
+<form id="grafo">
+  <input type="radio" name="grafo" value="1" checked="checked">grafo 1
+  <input type="radio" name="grafo" value="2">grafo 2
+  <input type="radio" name="grafo" value="3">grafo 3
+</form>
 
 
 <div id="contenitore">
@@ -590,177 +593,539 @@
     })
   }
 
-  function secondo() {
+
+
+  //--------------------------------
+
+
+
+  function secondo(charge, coeffNodi) {
+
+    const K = [charge, coeffNodi];
 
     var comandi = document.getElementById('comandi');
-    
-    comandi.innerHTML = ''
 
-    var nodiDaVedere = [...graph.nodes];
-    var linkDaVedere = [...graph.links];
+    comandi.innerHTML = 'charge <input id="charge" step="1" type="range" min="-200" max="50" value="-80" /> numero nodi<input id="coeffNodi" step="0.1" type="range" min="0.5" max="1.5" value="1" />'
 
-    var w = window.innerWidth - 100;
-    var h = window.innerHeight - 100;
-    var svg = d3.select("svg").attr("width", w).attr("height", h);
-    var width = svg.attr("width");
-    var height = svg.attr("height");
+    function secondoDisegna() {
+      var charge = K[0];
+      var coeffNodi = K[1];
+      console.log(charge, coeffNodi)
+      var nodiDaVedere = [...graph.nodes];
+      var linkDaVedere = [...graph.links];
 
-    var circleCoord = function (circle, node, index, num_nodes) {
-      var circumference = circle.node().getTotalLength();
-      var pointAtLength = function (l) { return circle.node().getPointAtLength(l) };
-      var sectionLength = (circumference) / num_nodes;
-      var position = sectionLength * index + sectionLength / 2;
-      return pointAtLength(circumference - position)
-    }
-    function getPosition(force) {
-      return force.nodes().map(function (node) {
-        return {
-          name: node.name,
-          group: node.group,
-          x: node.x,
-          y: node.y
-        }
-      })
-    }
+      var w = window.innerWidth - 100;
+      var h = window.innerHeight - 100;
+      var svg = d3.select("svg").attr("width", w).attr("height", h);
+      var width = svg.attr("width");
+      var height = svg.attr("height");
 
-    function circle1(cx, cy, myr) {
-
-      return "M" + cx + "," + cy + " " +
-        "m" + -myr + ", 0 " +
-        "a" + myr + "," + myr + " 0 1,0 " + myr * 2 + ",0 " +
-        "a" + myr + "," + myr + " 0 1,0 " + -myr * 2 + ",0Z";
-    }
-
-    var svg = d3.select("svg");
-    var width = svg.attr("width");
-    var height = svg.attr("height");
-
-    var color = d3.scaleOrdinal(d3.schemeCategory10);
-
-    var nodes = [],
-      links = [];
-
-
-    var simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().distance(200).strength(.6).id(function (d) {
-        return d.name;
-      }).distance(function (d) {
-        if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return -20; }
-        else {
-          if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
-            return 20;
-          } else {
-            if (d.source.group == d.target.group) { return 0; } else {
-              return 0;
-            }
+      var circleCoord = function (circle, node, index, num_nodes) {
+        var circumference = circle.node().getTotalLength();
+        var pointAtLength = function (l) { return circle.node().getPointAtLength(l) };
+        var sectionLength = (circumference) / num_nodes;
+        var position = sectionLength * index + sectionLength / 2;
+        return pointAtLength(circumference - position)
+      }
+      function getPosition(force) {
+        return force.nodes().map(function (node) {
+          return {
+            name: node.name,
+            group: node.group,
+            x: node.x,
+            y: node.y
           }
-        }
-      })
-        .strength(function (d) {
-          if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return 0.3; }
+        })
+      }
+
+      function circle1(cx, cy, myr) {
+
+        return "M" + cx + "," + cy + " " +
+          "m" + -myr + ", 0 " +
+          "a" + myr + "," + myr + " 0 1,0 " + myr * 2 + ",0 " +
+          "a" + myr + "," + myr + " 0 1,0 " + -myr * 2 + ",0Z";
+      }
+
+      var svg = d3.select("svg");
+      var width = svg.attr("width");
+      var height = svg.attr("height");
+
+      var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+      var nodes = [],
+        links = [];
+
+      var chargeForce = d3.forceManyBody()
+
+
+      var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().distance(200).strength(.6).id(function (d) {
+          return d.name;
+        }).distance(function (d) {
+          if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return -50; }
           else {
             if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
-              return 0;
+              return 20;
             } else {
-              if (d.source.group == d.target.group) { return 0 } else {
+              if (d.source.group == d.target.group) { return 0; } else {
                 return 0;
               }
             }
           }
-        }))
-      .force("charge", d3.forceManyBody())
-      .force("x", d3.forceX(width / 2))
-      .force("y", d3.forceY(height / 2))
-      .force('collision', d3.forceCollide().radius(function (d) { ; if (d.name.includes("invisibile")) return 200; else return 40; }))
-      .on("tick", ticked);
+        })
+          .strength(function (d) {
+            if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return 1; }
+            else {
+              if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
+                return 0;
+              } else {
+                if (d.source.group == d.target.group) { return 0 } else {
+                  return 0;
+                }
+              }
+            }
+          }))
+        .force("charge", chargeForce)
+        .force("x", d3.forceX(width / 2))
+        .force("y", d3.forceY(height / 2))
+        .force('collision', d3.forceCollide().radius(function (d) { ; if (d.name.includes("invisibile")) return 200; else return 40; }))
+        .on("tick", ticked);
 
 
 
 
-    var cluster_name = [];
-    nodiDaVedere.forEach(function (d) {
-      cluster_name.push(d.group);
-    })
-    var unique_cluster_name = [...new Set(cluster_name)];
-    var lista_nodi_invisibili = unique_cluster_name.map(d => {
-      return { "name": "invisibile" + d, "group": d };
-    });
-    /*     lista_nodi_invisibili=[{ "name": "invisibile" + 1, "group": 1 },{ "name": "invisibile" + 2, "group": 2 }] */
+      var cluster_name = [];
+      nodiDaVedere.forEach(function (d) {
+        cluster_name.push(d.group);
+      })
+      var unique_cluster_name = [...new Set(cluster_name)];
+      var lista_nodi_invisibili = unique_cluster_name.map(d => {
+        return { "name": "invisibile" + d, "group": d };
+      });
+      /*     lista_nodi_invisibili=[{ "name": "invisibile" + 1, "group": 1 },{ "name": "invisibile" + 2, "group": 2 }] */
 
-    allNodes = nodiDaVedere.map(node => {
-      return createNode(node.name, node.group)
-    })
+      allNodes = nodiDaVedere.map(node => {
+        return createNode(node.name, node.group)
+      })
 
-    nodes = lista_nodi_invisibili.map(node => {
-      return createNode(node.name, node.group)
-    })
+      nodes = lista_nodi_invisibili.map(node => {
+        return createNode(node.name, node.group)
+      })
 
 
 
-    var colori_array = getArrayColori(unique_cluster_name.length);
+      var colori_array = getArrayColori(unique_cluster_name.length);
 
-    var a = createNode('A', 100);
+      var a = createNode('A', 100);
 
-    start();
+      start();
 
-    function getIndexGroup(groups, d) {
-      for (let i = 0; i < groups.length; i++) {
-        if (groups[i].key == d) return groups[i];
+      function getIndexGroup(groups, d) {
+        for (let i = 0; i < groups.length; i++) {
+          if (groups[i].key == d) return groups[i];
+        }
+      }
+
+      function decisiNumeroNodiInvisibili(n) {
+        return Math.floor(Math.log(n + 2.7) * 20 * coeffNodi)
+        /* if (n<4) return 30;
+        else if (n<7) return 40;
+        else if (n<12) return 60;
+        else return 80; */
+      }
+
+      var groups = d3.nest().key(function (d) { return d.group; }).entries(nodiDaVedere);
+
+      setTimeout(function () {
+        var coordinateCentroNodiPosizione = simulation.nodes().map(function (d) {
+          return [d.x, d.y, d.group];
+        })
+
+
+
+        coordinateCentroNodiPosizione.forEach(function (d) {
+          var x = d[0];
+          var y = d[1];
+          var j = d[2];
+
+          const gruppo = getIndexGroup(groups, j)
+
+
+          var nNodiGroupCluster = decisiNumeroNodiInvisibili(gruppo.values.length);
+
+          var pathCircle = circle1(x, y, nNodiGroupCluster * 1.5);
+          var circle = svg.append("path")
+            .attr("d", pathCircle)
+            .style("fill", "#f5f5f5")
+            .style("opacity", 0.5);
+          var length = circle.node().getTotalLength();
+          for (i = 0; i < nNodiGroupCluster; i++) {
+            nodo = createNode(String(i) + 'groupCluster' + String(j), 100);
+            var coord = circleCoord(circle, nodo, i, nNodiGroupCluster)
+            nodo.x = coord.x
+            nodo.y = coord.y
+            nodes.push(...[nodo])
+            if (i > 0) {
+              var link = { source: String(i - 1) + 'groupCluster' + String(j), target: String(i) + 'groupCluster' + String(j) }
+              links.push(...[link])
+            }
+            if (i == nNodiGroupCluster - 1) {
+              var link2 = { source: String(i) + 'groupCluster' + String(j), target: String(0) + 'groupCluster' + String(j) }
+              links.push(...[link2])
+            }
+          };
+          circle.remove();
+        })
+
+        chargeForce.strength(function (d) {
+          if (d.name.includes("groupCluster")) return -50; else return charge;
+        });
+
+        simulation
+          .force(
+            "link",
+            d3.forceLink()
+              .id(function (d) {
+                return d.name;
+              })
+              .distance(function (d) {
+                if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return -100; }
+                else {
+                  if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
+                    return 100;
+                  } else {
+                    if (d.source.group == d.target.group) { return -120; } else {
+                      return 0;
+                    }
+                  }
+                }
+              })
+              .strength(function (d) {
+                if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return 0.2; }
+                else {
+                  if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
+                    return 0.6;
+                  } else {
+                    if ((d.source.group == d.target.group) && (d.source.name.includes('groupCluster'))) { return 1 } else {
+                      return 0;
+                    }
+                  }
+                }
+              }))
+
+          // use forceX and forceY instead to change the relative positioning
+          // .force("centering", d3.forceCenter(width/2, height/2))
+          .force("charge", chargeForce)
+          .force('collision', d3.forceCollide().radius(function (d) { if (d.name.includes("groupCluster")) return 8; else return 10; }))
+          .on("tick", ticked);
+        //nodes.push(...[a]);
+        start();
+      }, 1000);
+
+      function getNodeGroup(group, listaNodi) {
+        for (var i = 0; i < listaNodi.length; i++) {
+          if (listaNodi[i].group == group) { return listaNodi[i]; }
+        }
+      }
+
+      setTimeout(function () {
+        var coordinateCentroNodiPosizione = [];
+        simulation.nodes().forEach(function (d) {
+          if (d.name.includes("invisibile")) {
+            coordinateCentroNodiPosizione.push({ x: d.x, y: d.y, group: d.group });
+          }
+        });
+
+
+
+        nodiDaVedere.forEach(d => {
+          const gruppo = getIndexGroup(groups, d.group);
+          const numeroNodiNelGruppo = gruppo.values.length;
+          const centro = getNodeGroup(d.group, coordinateCentroNodiPosizione);
+          const offset = 20 + numeroNodiNelGruppo * 2;
+          d.x = centro.x + (Math.random() * offset);
+          d.y = centro.y + (Math.random() * offset);
+
+          nodes.push(d);
+
+        })
+
+        const tmpNode = [];
+
+        nodes.forEach(d => {
+          if (!d.name.includes("invisibile")) tmpNode.push(d);
+        })
+
+        nodes = tmpNode;
+
+        links.push(...linkDaVedere)
+
+        /*       d3.range(50).forEach(function (d) {
+                var ny = coordinateCentroNodiPosizione[0].y + (Math.random() * 5);
+                var nx = coordinateCentroNodiPosizione[0].x + (Math.random() * 5);
+                nodes.push({ name: String(d), group: 0, x: nx, y: ny });
+              }) */
+
+        start2();
+      }, 3000);
+
+
+
+      function createNode(nome, group) {
+        return { "name": nome, "x": width / 2, "y": height / 2, group }
+      }
+
+      var fase2 = false;
+
+      function start() {
+
+        var nodeElements = svg.selectAll(".node").data(nodes, function (d) { return d.id });
+
+
+        nodeElements.enter()
+          .append("circle")
+          .attr("class", function (d) { return "node " + d.id; })
+          .attr("r", function (d) {
+            if (d.name.includes("invisibile")) {
+              return 10;
+            } else if (d.name == 'A') {
+              return 20;
+            } else {
+              return 8
+            }
+          })
+          .attr("fill", function (d) { if (d.name.includes("invisibile")) return "black"; else return colori_array[d.group] })
+          .call(
+            d3
+              .drag()
+              .on("start", dragstarted)
+              .on("drag", dragged)
+              .on("end", dragended)
+          );
+
+        nodeElements.exit().remove();
+
+        var linkElements = svg.selectAll(".link").data(links);
+        linkElements.enter().insert("line", ".node").attr("class", "link");
+        linkElements.exit().remove();
+
+        simulation.nodes(nodes)
+        simulation.force("link").links(links)
+        simulation.restart();
+      }
+
+      function start2() {
+
+
+        var nodeElements = svg.selectAll(".node").data(nodes, function (d) { return d.id });
+
+
+        nodeElements.enter()
+          .append("circle")
+          .attr("class", function (d) { return "node " + d.id; })
+          .attr("r", function (d) {
+            if (d.name.includes("invisibile")) {
+              return 10;
+            } else if (d.name == 'A') {
+              return 20;
+            } else {
+              return 8
+            }
+          })
+          .attr("fill", function (d) { if (d.name.includes("invisibile")) return "red"; else return colori_array[d.group] })
+          .call(
+            d3
+              .drag()
+              .on("start", dragstarted)
+              .on("drag", dragged)
+              .on("end", dragended)
+          );
+
+        nodeElements.exit().remove();
+
+        var linkElements = svg.selectAll(".link").data(links);
+        linkElements.enter().insert("line", ".node").attr("class", "link");
+        linkElements.exit().remove();
+
+        simulation.nodes(nodes)
+        simulation.force("link").links(links)
+        simulation.restart();
+      }
+
+      /*     function tick() {
+            var nodeElements = svg.selectAll(".node");
+            var linkElements = svg.selectAll(".link");
+      
+            nodeElements.attr("cx", function (d, i) { return d.x; })
+              .attr("cy", function (d) { return d.y; })
+      
+            linkElements.attr("x1", function (d) { return d.source.x; })
+              .attr("y1", function (d) { return d.source.y; })
+              .attr("x2", function (d) { return d.target.x; })
+              .attr("y2", function (d) { return d.target.y; });
+      
+      
+          } */
+
+      var groupPath = function (d) {
+        return "M" +
+          d3.polygonHull(d.map(function (i) { return [i.x, i.y]; }))
+            .join("L")
+          + "Z";
+      };
+
+      function ticked() {
+
+        var nodeElements = svg.selectAll(".node");
+        var linkElements = svg.selectAll(".link");
+
+        nodeElements.attr("cx", function (d) {
+          if (d.name.includes("groupCluster")) {
+            return d.x
+          }
+          return d.x = Math.max(50, Math.min(width - 50, d.x));
+        })
+          .attr("cy", function (d) {
+            if (d.name.includes("groupCluster")) {
+              return d.y
+            }
+            return d.y = Math.max(50, Math.min(height - 50, d.y));
+          });
+
+        linkElements.attr("x1", function (d) { return d.source.x; })
+          .attr("y1", function (d) { return d.source.y; })
+          .attr("x2", function (d) { return d.target.x; })
+          .attr("y2", function (d) { return d.target.y; });
+
+          
+/*         const pathsRound = [];
+        d3.range(11).forEach(() => { pathsRound.push([])});
+        nodeElements.each(function (d) {
+          if (d.name.includes("groupCluster")) {
+            thisGroup = parseInt(d.name.split("groupCluster")[1])
+            pathsRound[thisGroup].push({x: d.x, y: d.y, group:thisGroup});
+          }
+        })
+
+
+      svg.selectAll("path")
+      .data(pathsRound)
+      .attr("d", groupPath)
+      .enter().insert("path", "circle")
+      .attr("class", "path") */
+
+      }
+
+      function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+
+      function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      }
+
+      function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
       }
     }
 
-    function decisiNumeroNodiInvisibili(n) {
-      return Math.floor(Math.log(n + 2.7) * 20)
-      /* if (n<4) return 30;
-      else if (n<7) return 40;
-      else if (n<12) return 60;
-      else return 80; */
-    }
+    secondoDisegna();
 
-    var groups = d3.nest().key(function (d) { return d.group; }).entries(nodiDaVedere);
+    d3.select('#charge').on('click', function () {
+      d3.select("svg").remove();
+      d3.select("#contenitore").append('svg')
+      K[0] = this.value;
+      secondoDisegna();
+    })
 
-    setTimeout(function () {
-      var coordinateCentroNodiPosizione = simulation.nodes().map(function (d) {
-        return [d.x, d.y, d.group];
+    d3.select('#coeffNodi').on('click', function () {
+      d3.select("svg").remove();
+      d3.select("#contenitore").append('svg')
+      K[1] = this.value;
+      secondoDisegna();
+    })
+
+
+
+  }
+
+
+
+  //--------------------------------
+
+
+  function terzo(raggio) {
+
+    var comandi = document.getElementById('comandi');
+
+    comandi.innerHTML = 'Collision <input id="collision" step="1" type="range" min="0" max="20" value="20" /> Grandezza cerchi <input id="raggio" step="1" type="range" min="0" max="10" value="' + raggio + '" />'
+
+    function terzoDisegna(raggio) {
+      var nodiDaVedere = [...graph.nodes];
+      var linkDaVedere = [...graph.links];
+
+      var w = window.innerWidth - 100;
+      var h = window.innerHeight - 100;
+      var svg = d3.select("svg").attr("width", w).attr("height", h);
+      var width = svg.attr("width");
+      var height = svg.attr("height");
+
+      function decisiNumeroNodiInvisibili(n) {
+        if (n < 3) return 5;
+        else if (n < 5) return 6;
+        else if (n < 11) return 7;
+        else return 8;
+      }
+
+
+      // creo i nodi invisibili e li collego a tutti i nodi del loro cluster
+      var cluster_name = [];
+      nodiDaVedere.forEach(function (d) {
+        cluster_name.push(d.group);
+      })
+      var unique_cluster_name = [...new Set(cluster_name)];
+      var lista_nodi_invisibili = [];
+
+      function getIndexGroup(groups, d) {
+        for (let i = 0; i < groups.length; i++) {
+          if (groups[i].key == d) return groups[i];
+        }
+      }
+
+      var groups = d3.nest().key(function (d) { return d.group; }).entries(nodiDaVedere);
+      unique_cluster_name = groups.map(function (d) {
+        return parseInt(d.key)
+      });
+
+      const invisibleNode = [];
+
+      unique_cluster_name.forEach(function (d) {
+        const nameInvisibleNode = "invisibile" + d;
+        invisibleNode.push(nameInvisibleNode)
+        nodiDaVedere.unshift({ "name": nameInvisibleNode, "group": d });
+      });
+      invisibleNode.forEach(function (j) {
+        invisibleNode.forEach(function (i) {
+          if (i != j) {
+            linkDaVedere.push({ "source": i, "target": j, "value": 0 });
+          }
+        })
       })
 
+      // collego tutti i nodi invisibili tra di loro
 
-
-      coordinateCentroNodiPosizione.forEach(function (d) {
-        var x = d[0];
-        var y = d[1];
-        var j = d[2];
-
-        const gruppo = getIndexGroup(groups, j)
-
-
-        var nNodiGroupCluster = decisiNumeroNodiInvisibili(gruppo.values.length);
-
-        var pathCircle = circle1(x, y, nNodiGroupCluster * 1.5);
-        var circle = svg.append("path")
-          .attr("d", pathCircle)
-          .style("fill", "#f5f5f5")
-          .style("opacity", 0.5);
-        var length = circle.node().getTotalLength();
-        for (i = 0; i < nNodiGroupCluster; i++) {
-          nodo = createNode(String(i) + 'groupCluster' + String(j), 100);
-          var coord = circleCoord(circle, nodo, i, nNodiGroupCluster)
-          nodo.x = coord.x
-          nodo.y = coord.y
-          nodes.push(...[nodo])
-          if (i > 0) {
-            var link = { source: String(i - 1) + 'groupCluster' + String(j), target: String(i) + 'groupCluster' + String(j) }
-            links.push(...[link])
-          }
-          if (i == nNodiGroupCluster - 1) {
-            var link2 = { source: String(i) + 'groupCluster' + String(j), target: String(0) + 'groupCluster' + String(j) }
-            links.push(...[link2])
-          }
-        };
-        circle.remove();
+      collideForce = d3.forceCollide().radius(function (d) {
+        if (d.name.includes("invisibile")) return 0;
+        else return 20;
       })
 
-      simulation
+      var simulation = d3
+        .forceSimulation(nodiDaVedere)
         .force(
           "link",
           d3.forceLink()
@@ -768,12 +1133,12 @@
               return d.name;
             })
             .distance(function (d) {
-              if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return -100; }
+              if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return 600; }
               else {
                 if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
                   return 100;
                 } else {
-                  if (d.source.group == d.target.group) { return -120; } else {
+                  if (d.source.group == d.target.group) { return 0; } else {
                     return 0;
                   }
                 }
@@ -785,86 +1150,50 @@
                 if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
                   return 0.6;
                 } else {
-                  if ((d.source.group == d.target.group) && (d.source.name.includes('groupCluster'))) { return 1 } else {
+                  if (d.source.group == d.target.group) { return 0.1 } else {
                     return 0;
                   }
                 }
               }
-            }))
-
-        // use forceX and forceY instead to change the relative positioning
-        // .force("centering", d3.forceCenter(width/2, height/2))
-        .force("charge", d3.forceManyBody().strength(function (d) {
-          if (d.name.includes("groupCluster")) return -50; else return -80;
-        }))
-        .force('collision', d3.forceCollide().radius(function (d) { if (d.name.includes("groupCluster")) return 8; else return 10; }))
+            })
+            .links(linkDaVedere)
+        )
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force('collision', collideForce)
         .on("tick", ticked);
-      //nodes.push(...[a]);
-      start();
-    }, 1000);
 
-    function getNodeGroup(group, listaNodi) {
-      for (var i = 0; i < listaNodi.length; i++) {
-        if (listaNodi[i].group == group) { return listaNodi[i]; }
+      function raggioGroup(group) {
+        for (let i = 0; i < groups.length; i++) {
+          if (groups[i].key == group) { return (groups[i].values.length * raggio) + 50; }
+        }
       }
-    }
 
-    setTimeout(function () {
-      var coordinateCentroNodiPosizione = [];
-      simulation.nodes().forEach(function (d) {
-        if (d.name.includes("invisibile")) {
-          coordinateCentroNodiPosizione.push({ x: d.x, y: d.y, group: d.group });
-        }
-      });
-
-
-
-      nodiDaVedere.forEach(d => {
-        const centro = getNodeGroup(d.group, coordinateCentroNodiPosizione);
-        const offset = 40;
-        d.x = centro.x + (Math.random() * offset);
-        d.y = centro.y + (Math.random() * offset);
-
-        nodes.push(d);
-      })
-
-      links.push(...linkDaVedere)
-
-      /*       d3.range(50).forEach(function (d) {
-              var ny = coordinateCentroNodiPosizione[0].y + (Math.random() * 5);
-              var nx = coordinateCentroNodiPosizione[0].x + (Math.random() * 5);
-              nodes.push({ name: String(d), group: 0, x: nx, y: ny });
-            }) */
-
-      start2();
-    }, 3000);
-
-
-
-    function createNode(nome, group) {
-      return { "name": nome, "x": width / 2, "y": height / 2, group }
-    }
-
-    var fase2 = false;
-
-    function start() {
-
-      var nodeElements = svg.selectAll(".node").data(nodes, function (d) { return d.id });
-
-
-      nodeElements.enter()
+      var link = svg
+        .append("g")
+        .attr("class", "links")
+        .selectAll("line")
+        .data(linkDaVedere)
+        .enter()
+        .append("line")
+        .attr("stroke-width", function (d) {
+          if (d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) return 0; else return 3;
+        });
+      var colori_array = getArrayColori(unique_cluster_name.length);
+      var node = svg
+        .append("g")
+        .attr("class", "nodes")
+        .selectAll("circle")
+        .data(nodiDaVedere)
+        .enter()
         .append("circle")
-        .attr("class", function (d) { return "node " + d.id; })
         .attr("r", function (d) {
           if (d.name.includes("invisibile")) {
-            return 10;
-          } else if (d.name == 'A') {
-            return 20;
+            return raggioGroup(d.group);
           } else {
-            return 8
+            return 8;
           }
         })
-        .attr("fill", function (d) { if (d.name.includes("invisibile")) return "red"; else return colori_array[d.group] })
+        .attr("fill", function (d) { if (d.name.includes("invisibile")) return "rgba(198, 45, 205, 0.1)"; else return colori_array[d.group] })
         .call(
           d3
             .drag()
@@ -872,331 +1201,104 @@
             .on("drag", dragged)
             .on("end", dragended)
         );
-
-      nodeElements.exit().remove();
-
-      var linkElements = svg.selectAll(".link").data(links);
-      linkElements.enter().insert("line", ".node").attr("class", "link");
-      linkElements.exit().remove();
-
-      simulation.nodes(nodes)
-      simulation.force("link").links(links)
-      simulation.restart();
-    }
-
-    function start2() {
+      ;
 
 
-      var nodeElements = svg.selectAll(".node").data(nodes, function (d) { return d.id });
 
-
-      nodeElements.enter()
-        .append("circle")
-        .attr("class", function (d) { return "node " + d.id; })
-        .attr("r", function (d) {
-          if (d.name.includes("invisibile")) {
-            return 10;
-          } else if (d.name == 'A') {
-            return 20;
-          } else {
-            return 8
+      /*   var groupPath = function (d) {
+          return "M" +
+            d3.polygonHull(d.values.map(i => { return [i[0], i[1]] })).join('L')
+            + "Z";
+        }; */
+      //---------------
+      function distanzaCentro(x2, y2, x1, y1) {
+        return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
+      }
+      function getCentroGruppo(groupId, invisibili) {
+        for (let i = 0; i < invisibili.length; i++) {
+          if (invisibili[i].group == groupId) {
+            return invisibili[i]
           }
-        })
-        .attr("fill", function (d) { if (d.name.includes("invisibile")) return "red"; else return colori_array[d.group] })
-        .call(
-          d3
-            .drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended)
-        );
-
-      nodeElements.exit().remove();
-
-      var linkElements = svg.selectAll(".link").data(links);
-      linkElements.enter().insert("line", ".node").attr("class", "link");
-      linkElements.exit().remove();
-
-      simulation.nodes(nodes)
-      simulation.force("link").links(links)
-      simulation.restart();
-    }
-
-    /*     function tick() {
-          var nodeElements = svg.selectAll(".node");
-          var linkElements = svg.selectAll(".link");
-    
-          nodeElements.attr("cx", function (d, i) { return d.x; })
-            .attr("cy", function (d) { return d.y; })
-    
-          linkElements.attr("x1", function (d) { return d.source.x; })
-            .attr("y1", function (d) { return d.source.y; })
-            .attr("x2", function (d) { return d.target.x; })
-            .attr("y2", function (d) { return d.target.y; });
-    
-    
-        } */
-
-    function ticked() {
-
-      var nodeElements = svg.selectAll(".node");
-      var linkElements = svg.selectAll(".link");
-
-      nodeElements.attr("cx", function (d) {
-        if (d.name.includes("groupCluster")) {
-          return d.x
         }
-        return d.x = Math.max(50, Math.min(width - 50, d.x));
-      })
-        .attr("cy", function (d) {
-          if (d.name.includes("groupCluster")) {
-            return d.y
-          }
-          return d.y = Math.max(50, Math.min(height - 50, d.y));
+      }
+      //-------------
+
+
+
+      function ticked() {
+
+        const invisibili = [];
+        node.attr("cx", function (d) {
+          if (d.name.includes("invisibile"))
+            invisibili.push({ group: d.group, x: d.x, y: d.y });
         });
 
-      linkElements.attr("x1", function (d) { return d.source.x; })
-        .attr("y1", function (d) { return d.source.y; })
-        .attr("x2", function (d) { return d.target.x; })
-        .attr("y2", function (d) { return d.target.y; });
-    }
-
-    function dragstarted(d) {
-      if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-      d.fx = d.x;
-      d.fy = d.y;
-    }
-
-    function dragged(d) {
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
-    }
-
-    function dragended(d) {
-      if (!d3.event.active) simulation.alphaTarget(0);
-      d.fx = null;
-      d.fy = null;
-    }
-
-  }
-
-  function terzo() {
-
-    var comandi = document.getElementById('comandi');
-    
-    comandi.innerHTML = ''
-
-    var nodiDaVedere = [...graph.nodes];
-    var linkDaVedere = [...graph.links];
-
-    var w = window.innerWidth - 100;
-    var h = window.innerHeight - 100;
-    var svg = d3.select("svg").attr("width", w).attr("height", h);
-    var width = svg.attr("width");
-    var height = svg.attr("height");
-
-    function decisiNumeroNodiInvisibili(n) {
-    if (n < 3) return 5;
-    else if (n < 5) return 6;
-    else if (n < 11) return 7;
-    else return 8;
-  }
-
-
-  // creo i nodi invisibili e li collego a tutti i nodi del loro cluster
-  var cluster_name = [];
-  nodiDaVedere.forEach(function (d) {
-    cluster_name.push(d.group);
-  })
-  var unique_cluster_name = [...new Set(cluster_name)];
-  var lista_nodi_invisibili = [];
-
-  function getIndexGroup(groups, d) {
-    for (let i = 0; i < groups.length; i++) {
-      if (groups[i].key == d) return groups[i];
-    }
-  }
-
-  var groups = d3.nest().key(function (d) { return d.group; }).entries(nodiDaVedere);
-  unique_cluster_name = groups.map(function (d) {
-    return parseInt(d.key)
-  });
-
-  const invisibleNode = [];
-
-  unique_cluster_name.forEach(function (d) {
-    const nameInvisibleNode = "invisibile" + d;
-    invisibleNode.push(nameInvisibleNode)
-    nodiDaVedere.unshift({ "name": nameInvisibleNode, "group": d });
-  });
-  invisibleNode.forEach(function (j) {
-    invisibleNode.forEach(function (i) {
-      if (i != j) {
-        linkDaVedere.push({ "source": i, "target": j, "value": 0 });
-      }
-    })
-  })
-
-  // collego tutti i nodi invisibili tra di loro
-
-
-  var simulation = d3
-    .forceSimulation(nodiDaVedere)
-    .force(
-      "link",
-      d3.forceLink()
-        .id(function (d) {
-          return d.name;
-        })
-        .distance(function (d) {
-          if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return 600; }
-          else {
-            if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
-              return 100;
-            } else {
-              if (d.source.group == d.target.group) { return 0; } else {
-                return 0;
-              }
-            }
+        const offset = 40;
+        node.attr("cx", function (d) {
+          const coordinateCentro = getCentroGruppo(d.group, invisibili);
+          if (distanzaCentro(d.x, d.y, coordinateCentro.x, coordinateCentro.y) > raggioGroup(d.group)) {
+            return d.x = d.x = coordinateCentro.x + (Math.random() * offset);
+          } else {
+            return d.x;
           }
         })
-        .strength(function (d) {
-          if (d.source.name.includes("invisibile") && d.target.name.includes("invisibile")) { return 0.2; }
-          else {
-            if ((d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) && d.source.group == d.target.group) {
-              return 0.6;
+          .attr("cy", function (d) {
+            const coordinateCentro = getCentroGruppo(d.group, invisibili);
+            if (distanzaCentro(d.x, d.y, coordinateCentro.x, coordinateCentro.y) > raggioGroup(d.group)) {
+              return d.y = coordinateCentro.y + (Math.random() * offset);
             } else {
-              if (d.source.group == d.target.group) { return 0.1 } else {
-                return 0;
-              }
+              return d.y;
             }
           }
+          );
+
+        node.attr("cx", function (d) {
+
+          return d.x = Math.max(50, Math.min(width - 50, d.x));
         })
-        .links(linkDaVedere)
-    )
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .force('collision', d3.forceCollide().radius(function (d) {
-      if (d.name.includes("invisibile")) return 0;
-      else return 20;
-    }))
-    .on("tick", ticked);
+          .attr("cy", function (d) { return d.y = Math.max(50, Math.min(height - 50, d.y)); });
 
-  function raggioGroup(group) {
-    for (let i = 0; i < groups.length; i++) {
-      if (groups[i].key == group) { return (groups[i].values.length * 5)+50; }
-    }
-  }
+        link.attr("x1", function (d) { return d.source.x; })
+          .attr("y1", function (d) { return d.source.y; })
+          .attr("x2", function (d) { return d.target.x; })
+          .attr("y2", function (d) { return d.target.y; });
 
-  var link = svg
-    .append("g")
-    .attr("class", "links")
-    .selectAll("line")
-    .data(linkDaVedere)
-    .enter()
-    .append("line")
-    .attr("stroke-width", function (d) {
-      if (d.source.name.includes("invisibile") || d.target.name.includes("invisibile")) return 0; else return 3;
-    });
-  var colori_array = getArrayColori(unique_cluster_name.length);
-  var node = svg
-    .append("g")
-    .attr("class", "nodes")
-    .selectAll("circle")
-    .data(nodiDaVedere)
-    .enter()
-    .append("circle")
-    .attr("r", function (d) {
-      if (d.name.includes("invisibile")) {
-        return raggioGroup(d.group);
-      } else{
-        return 8;
+
+
       }
-    })
-    .attr("fill", function (d) { if (d.name.includes("invisibile")) return "rgba(198, 45, 205, 0.1)"; else return colori_array[d.group] })
-;
 
-
-
-  /*   var groupPath = function (d) {
-      return "M" +
-        d3.polygonHull(d.values.map(i => { return [i[0], i[1]] })).join('L')
-        + "Z";
-    }; */
-  //---------------
-  function distanzaCentro(x2, y2, x1, y1) {
-    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
-  }
-  function getCentroGruppo(groupId, invisibili) {
-    for (let i = 0; i < invisibili.length; i++) {
-      if (invisibili[i].group == groupId) {
-        return invisibili[i]
+      function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
       }
+
+      function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      }
+
+      function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
+
+      d3.select('#collision').on('click', function () {
+        console.log(this.value);
+        collideForce.radius(this.value)
+        simulation.alpha(0.5).restart();
+      })
     }
-  }
-  //-------------
 
+    terzoDisegna(raggio)
 
-
-  function ticked() {
-
-    const invisibili = [];
-    node.attr("cx", function (d) {
-      if (d.name.includes("invisibile"))
-        invisibili.push({ group: d.group, x: d.x, y: d.y });
+    d3.select('#raggio').on('click', function () {
+      d3.select("svg").remove();
+      d3.select("#contenitore").append('svg')
+      terzoDisegna(this.value);
     });
 
-    const offset = 40;
-        
-
-    node.attr("cx", function (d) {
-      const coordinateCentro = getCentroGruppo(d.group, invisibili);
-      if (distanzaCentro(d.x, d.y, coordinateCentro.x, coordinateCentro.y) > raggioGroup(d.group)) {
-        return d.x = d.x = coordinateCentro.x + (Math.random() * offset);
-      } else {
-        return d.x;
-      }
-    })
-      .attr("cy", function (d) {
-        const coordinateCentro = getCentroGruppo(d.group, invisibili);
-        if (distanzaCentro(d.x, d.y, coordinateCentro.x, coordinateCentro.y) > raggioGroup(d.group)) {
-          return d.y = coordinateCentro.y + (Math.random() * offset);
-        } else {
-          return d.y;
-        }
-      }
-      );
-
-    node.attr("cx", function (d) {
-
-      return d.x = Math.max(50, Math.min(width - 50, d.x));
-    })
-      .attr("cy", function (d) { return d.y = Math.max(50, Math.min(height - 50, d.y)); });
-
-    link.attr("x1", function (d) { return d.source.x; })
-      .attr("y1", function (d) { return d.source.y; })
-      .attr("x2", function (d) { return d.target.x; })
-      .attr("y2", function (d) { return d.target.y; });
-
-
-
-  }
-
-  function dragstarted(d) {
-    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
-  }
-
-  function dragged(d) {
-    d.fx = d3.event.x;
-    d.fy = d3.event.y;
-  }
-
-  function dragended(d) {
-    if (!d3.event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
-  }
   }
 
   primo();
@@ -1211,12 +1313,12 @@
       case "2":
         d3.select("svg").remove();
         d3.select("#contenitore").append('svg')
-        secondo();
+        secondo(-100, 1.1);
         break;
       case "3":
         d3.select("svg").remove();
         d3.select("#contenitore").append('svg')
-        terzo();
+        terzo(5);
         break;
     }
   });
