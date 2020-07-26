@@ -13,3 +13,6 @@ I grafi di esempio sono molto diversi tra loro per evidenziare le differenze tra
 
 ## Demo
 La demo ê disponibile a questo indirizzo https://Andreaorfino.github.io
+
+## Autori
+Luca Lauro e Andrea Orfino
