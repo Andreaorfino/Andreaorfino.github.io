@@ -9,7 +9,8 @@ La seconda strategia consiste nel creare delle catenelle di nodi fittizi che acc
 La terza strategia consiste nel creare delle forme circolari di dimensioni variabili che rappresentano le regioni dei cluster
 Tutte le forze determinanti in una strategia sono state rese modificabili dall’utente tramite dei slider.
 
-I grafi di esempio sono molto diversi tra loro per evidenziare le differenze tra le 3 strategie.  In alcuni casi sarà necessario regolare i parametri a disposizione per ottenere una corretta visualizzazione.
+## Funzionamento
+I grafi di esempio sono molto diversi tra loro per evidenziare le differenze tra le 3 strategie. In alcuni casi sarà necessario regolare i parametri a disposizione per ottenere una corretta visualizzazione in particolare per il secondo metodo, parametri elevati o bassi potrebbero andare bene per un determinato grafo ma essere sbagliati per un altro. 
 
 ## Demo
 La demo ê disponibile a questo indirizzo https://Andreaorfino.github.io
